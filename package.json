@@ -1,0 +1,28 @@
+{
+  "name": "war-strategy-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm:dev:web\" \"npm:dev:server\"",
+    "dev:web": "npm run dev --workspace @war/web",
+    "dev:server": "npm run start:dev --workspace @war/server",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "format": "prettier --write .",
+    "prisma:generate": "npm run prisma:generate --workspace @war/server",
+    "prisma:migrate": "npm run prisma:migrate --workspace @war/server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Faction {
+  wei
+  shu
+  wu
+  neutral
+}
+
+enum ResourceType {
+  food
+  wood
+  iron
+  stone
+  gold
+  gem
+}
+
+enum BuildingType {
+  main_hall
+  farm
+  lumber_mill
+  iron_mine
+  stone_quarry
+  warehouse
+  barracks
+  institute
+}
+
+enum QueueStatus {
+  pending
+  completed
+  cancelled
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  playerProfile PlayerProfile?
+  city          City?
+}
+
+model PlayerProfile {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  nickname   String   @unique
+  faction    Faction  @default(neutral)
+  level      Int      @default(1)
+  power      Int      @default(100)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model City {
+  id            String          @id @default(uuid())
+  userId         String          @unique
+  name           String
+  level          Int             @default(1)
+  warehouseLevel Int             @default(1)
+  queueSlots     Int             @default(1)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resourceStock  ResourceStock?
+  resourceLogs   ResourceLog[]
+  buildings      Building[]
+  buildingQueues BuildingQueue[]
+}
+
+model ResourceStock {
+  id              String   @id @default(uuid())
+  cityId           String   @unique
+  food             Int      @default(0)
+  wood             Int      @default(0)
+  iron             Int      @default(0)
+  stone            Int      @default(0)
+  gold             Int      @default(0)
+  gem              Int      @default(0)
+  foodPerHour      Int      @default(0)
+  woodPerHour      Int      @default(0)
+  ironPerHour      Int      @default(0)
+  stonePerHour     Int      @default(0)
+  goldPerHour      Int      @default(0)
+  gemPerHour       Int      @default(0)
+  foodCapacity     Int      @default(0)
+  woodCapacity     Int      @default(0)
+  ironCapacity     Int      @default(0)
+  stoneCapacity    Int      @default(0)
+  goldCapacity     Int      @default(0)
+  gemCapacity      Int      @default(0)
+  lastCollectedAt  DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  city             City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+}
+
+model ResourceLog {
+  id          String       @id @default(uuid())
+  cityId       String
+  type         ResourceType
+  amount       Int
+  reason       String
+  createdAt    DateTime     @default(now())
+  city         City         @relation(fields: [cityId], references: [id], onDelete: Cascade)
+}
+
+model Building {
+  id             String        @id @default(uuid())
+  cityId          String
+  type            BuildingType
+  level           Int           @default(1)
+  isUpgrading     Boolean       @default(false)
+  upgradedAt      DateTime      @default(now())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  city            City          @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  buildingQueues  BuildingQueue[]
+
+  @@unique([cityId, type])
+}
+
+model BuildingQueue {
+  id              String      @id @default(uuid())
+  cityId           String
+  buildingId       String
+  status           QueueStatus @default(pending)
+  fromLevel        Int
+  toLevel          Int
+  startAt          DateTime
+  finishAt         DateTime
+  speedupSeconds   Int         @default(0)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  city             City        @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  building         Building    @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+
+  @@index([cityId, status, finishAt])
+}
