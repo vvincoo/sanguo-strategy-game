@@ -56,9 +56,9 @@ export class ResourceService {
     };
 
     for (const key of RESOURCE_KEYS) {
-      const perHour = Number(stock[this.rateField(key)]);
-      const current = Number(stock[key]);
-      const capacity = Number(stock[this.capacityField(key)]);
+      const perHour = this.toNumber(stock[this.rateField(key)]);
+      const current = this.toNumber(stock[key]);
+      const capacity = this.toNumber(stock[this.capacityField(key)]);
       const generated = Math.floor((perHour * elapsedSeconds) / 3600);
       nextData[key] = Math.min(current + generated, capacity);
     }
@@ -84,5 +84,9 @@ export class ResourceService {
 
   private capacityField(key: ResourceKey): ResourceCapacityField {
     return `${key}Capacity`;
+  }
+
+  private toNumber(value: unknown): number {
+    return typeof value === 'number' ? value : Number(value ?? 0);
   }
 }
