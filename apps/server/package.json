@@ -7,7 +7,7 @@
     "start": "node dist/main",
     "start:dev": "nest start --watch",
     "lint": "echo 'server lint placeholder'",
-    "prisma:generate": "PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 prisma generate",
+    "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init"
   },
   "dependencies": {
@@ -23,7 +23,7 @@
     "class-validator": "^0.14.1",
     "ioredis": "^5.4.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",

@@ -1,6 +1,0 @@
-# Avoid repeated manual conflict resolution on frequently regenerated / high-churn files.
-# "merge=ours" keeps the target branch version during merge.
-package-lock.json merge=ours
-apps/server/package.json merge=ours
-apps/server/src/prisma.service.ts merge=ours
-apps/server/src/resource/resource.service.ts merge=ours
