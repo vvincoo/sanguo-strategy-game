@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { BuildingType } from '@prisma/client';
+import { BuildingType } from '../game-enums';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
@@ -25,8 +25,8 @@ export class BuildingController {
 
   @Post(':type/upgrade')
   @ResponseMessage('Start building upgrade success')
-  startUpgrade(@CurrentUser() user: JwtPayload, @Param('type') type: BuildingType) {
-    return this.buildingService.startUpgrade(user.sub, type);
+  startUpgrade(@CurrentUser() user: JwtPayload, @Param('type') type: string) {
+    return this.buildingService.startUpgrade(user.sub, type as BuildingType);
   }
 
   @Post('settle')

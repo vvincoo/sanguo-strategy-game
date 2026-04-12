@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsString, Length, Matches } from 'class-validator';
-import { Faction } from '@prisma/client';
+import { Faction } from '../../game-enums';
 
 export class RegisterDto {
   @IsEmail()

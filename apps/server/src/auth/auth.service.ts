@@ -4,7 +4,8 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Faction } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { Faction } from '../game-enums';
 import * as bcrypt from 'bcryptjs';
 import { INITIAL_BUILDING_TYPES } from '../building/building.config';
 import { PrismaService } from '../prisma.service';
@@ -37,7 +38,7 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const resourceStock = this.resourceService.buildInitialResourceStock();
 
-    const user = await this.prisma.$transaction(async (tx) => {
+    const user = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const createdUser = await tx.user.create({
         data: {
           email: dto.email,
@@ -45,7 +46,7 @@ export class AuthService {
           playerProfile: {
             create: {
               nickname: dto.nickname,
-              faction: dto.faction as Faction
+              faction: dto.faction
             }
           }
         }

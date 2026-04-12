@@ -1,4 +1,4 @@
-import { BuildingType } from '@prisma/client';
+import { BuildingType } from '../game-enums';
 
 export interface UpgradeCost {
   food: number;

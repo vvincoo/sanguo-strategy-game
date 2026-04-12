@@ -3,7 +3,8 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { BuildingType, Prisma, QueueStatus } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { BuildingType, QueueStatus } from '../game-enums';
 import { PrismaService } from '../prisma.service';
 import { RESOURCE_CONFIG } from '../resource/resource.config';
 import {
@@ -31,9 +32,10 @@ export class BuildingService {
       orderBy: { type: 'asc' }
     });
 
-    return buildings.map((building) => {
-      const nextLevel = building.level + 1;
-      const template = BUILDING_TEMPLATES[building.type];
+    return buildings.map((building: any) => {
+      const typedType = building.type as BuildingType;
+      const nextLevel = Number(building.level) + 1;
+      const template = BUILDING_TEMPLATES[typedType];
       return {
         id: building.id,
         type: building.type,
@@ -45,8 +47,8 @@ export class BuildingService {
           ? null
           : {
               toLevel: nextLevel,
-              durationSeconds: getUpgradeSeconds(building.type, nextLevel),
-              cost: getUpgradeCost(building.type, nextLevel)
+              durationSeconds: getUpgradeSeconds(typedType, nextLevel),
+              cost: getUpgradeCost(typedType, nextLevel)
             }
       };
     });
@@ -61,7 +63,7 @@ export class BuildingService {
       include: { building: true }
     });
 
-    return queues.map((queue) => ({
+    return queues.map((queue: any) => ({
       id: queue.id,
       buildingType: queue.building.type,
       status: queue.status,
@@ -115,7 +117,7 @@ export class BuildingService {
     const durationSeconds = getUpgradeSeconds(type, nextLevel);
     const finishAt = new Date(now.getTime() + durationSeconds * 1000);
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.resourceStock.update({
         where: { cityId: city.id },
         data: {
@@ -175,7 +177,7 @@ export class BuildingService {
       return { completed: 0 };
     }
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       for (const queue of completedQueues) {
         await tx.buildingQueue.update({
           where: { id: queue.id },
@@ -208,12 +210,14 @@ export class BuildingService {
       throw new NotFoundException('resource stock not found');
     }
 
-    const levelMap = new Map(buildings.map((item) => [item.type, item.level]));
-    const farmLevel = levelMap.get(BuildingType.farm) ?? 1;
-    const lumberLevel = levelMap.get(BuildingType.lumber_mill) ?? 1;
-    const ironLevel = levelMap.get(BuildingType.iron_mine) ?? 1;
-    const stoneLevel = levelMap.get(BuildingType.stone_quarry) ?? 1;
-    const warehouseLevel = levelMap.get(BuildingType.warehouse) ?? 1;
+    const levelMap = new Map(
+      buildings.map((item: any) => [item.type as BuildingType, Number(item.level)] as const)
+    );
+    const farmLevel = Number(levelMap.get(BuildingType.farm) ?? 1);
+    const lumberLevel = Number(levelMap.get(BuildingType.lumber_mill) ?? 1);
+    const ironLevel = Number(levelMap.get(BuildingType.iron_mine) ?? 1);
+    const stoneLevel = Number(levelMap.get(BuildingType.stone_quarry) ?? 1);
+    const warehouseLevel = Number(levelMap.get(BuildingType.warehouse) ?? 1);
 
     const capacityMultiplier = 1 + (warehouseLevel - 1) * 0.15;
 
