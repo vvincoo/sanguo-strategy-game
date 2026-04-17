@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "prisma:generate": "npm run prisma:generate --workspace @war/server",
     "prisma:migrate": "npm run prisma:migrate --workspace @war/server",
-    "verify:merge-state": "bash scripts/verify-merge-state.sh"
+    "verify:merge-state": "bash scripts/verify-merge-state.sh",
+    "merge:resolve-main": "bash scripts/resolve-main-conflicts.sh"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
